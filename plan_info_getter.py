@@ -40,6 +40,24 @@ def extract_dicom_info(directory):
                             brachy_application_setups = item[(0x300A, 0x00A0)].value
                             break
 
+                # Extract unique channel numbers (THIS JUST GIVES 1 FOR EVERYTHING, IT SEEMS THAT THE CHANNEL NUMBERS THEMSELVES ARE ALL JUST "1")
+                channel_numbers = set() # I keep this line so it just gives 0 for all
+                """
+                if (0x300A, 0x0230) in dicom_data:
+                    for brachy_treatment in dicom_data[(0x300A, 0x0230)]:
+                        if (0x300A, 0x0280) in brachy_treatment:
+                            for channel in brachy_treatment[(0x300A, 0x0280)]:
+                                if (0x300A, 0x0282) in channel:
+                                    channel_numbers.add(channel[(0x300A, 0x0282)].value)
+                """
+
+                # Source Isotope Name
+                source_isotope_name = "Unknown"
+                if (0x300A, 0x0210) in dicom_data:
+                    source_seq = dicom_data[(0x300A, 0x0210)]
+                    if (0x300A, 0x0226) in source_seq[0]:  # Assuming only one source sequence for simplicity
+                        source_isotope_name = source_seq[0][(0x300A, 0x0226)].value
+
 
                 # Append the data
                 data.append([
@@ -47,7 +65,9 @@ def extract_dicom_info(directory):
                     patient_name,
                     patient_id,
                     target_prescription_dose,
-                    brachy_application_setups
+                    brachy_application_setups,
+                    len(channel_numbers),
+                    source_isotope_name
                 ])
 
             except Exception as e:
@@ -57,13 +77,13 @@ def extract_dicom_info(directory):
     with open(output_csv, mode='w', newline='', encoding='utf-8') as csv_file:
         writer = csv.writer(csv_file)
         # Write the header row
-        writer.writerow(["Subfolder Name", "Patient Name", "Patient ID", "Target Prescription Dose", "Number of Brachy Application Setups"])
+        writer.writerow(["Subfolder Name", "Patient Name", "Patient ID", "Target Prescription Dose", "Number of Brachy Application Setups (num seeds)", "Number of Channels (Needles)", "Source Isotope Name"])
         # Write the data rows
         writer.writerows(data)
 
     print(f"Output written to {output_csv}")
 
 # Replace with the target directory path
-#directory = r"H:\\CCSI\\PlanningModule\\Brachy Projects\\1. CIHR MDBC Collaboration\\Prostate Patients\\Prostate Patients (Dakota 2022-2020)"
-directory = r"H:\\CCSI\\PlanningModule\\Brachy Projects\\1. CIHR MDBC Collaboration\\Prostate Patients\\Prostate Patients (Matt 2022-2020)"
+directory = r"H:\\CCSI\\PlanningModule\\Brachy Projects\\1. CIHR MDBC Collaboration\\Prostate Patients\\Prostate Patients (Dakota 2022-2020)"
+#directory = r"H:\\CCSI\\PlanningModule\\Brachy Projects\\1. CIHR MDBC Collaboration\\Prostate Patients\\Prostate Patients (Matt 2022-2020)"
 extract_dicom_info(directory)
