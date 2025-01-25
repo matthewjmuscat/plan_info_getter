@@ -67,5 +67,7 @@ def extract_ct_dicom_info(directory):
     print(f"Output written to {output_csv}")
 
 # Replace with the target directory path
-directory = r"H:\\CCSI\\PlanningModule\\Brachy Projects\\1. CIHR MDBC Collaboration\\Prostate Patients\\Prostate Patients (Dakota 2022-2020)"
+#directory = r"H:\\CCSI\\PlanningModule\\Brachy Projects\\1. CIHR MDBC Collaboration\\Prostate Patients\\Prostate Patients (Dakota 2022-2020)"
+directory = r"H:\\CCSI\\PlanningModule\\Brachy Projects\\1. CIHR MDBC Collaboration\\Prostate Patients\\Prostate Patients (Matt 2022-2020)"
+
 extract_ct_dicom_info(directory)

@@ -23,11 +23,32 @@ def extract_dicom_info(directory):
                 subfolder_name = os.path.basename(root)
                 patient_name = dicom_data.get((0x0010, 0x0010), "Unknown").value if (0x0010, 0x0010) in dicom_data else "Unknown"
                 patient_id = dicom_data.get((0x0010, 0x0020), "Unknown").value if (0x0010, 0x0020) in dicom_data else "Unknown"
-                target_prescription_dose = dicom_data.get((0x300A, 0x0026), "Unknown").value if (0x300A, 0x0026) in dicom_data else "Unknown"
-                brachy_application_setups = dicom_data.get((0x300A, 0x00A0), "Unknown").value if (0x300A, 0x00A0) in dicom_data else "Unknown"
+
+                # Navigate the sequence to get the Target Prescription Dose (300A,0026)
+                target_prescription_dose = "Unknown"
+                if (0x300A, 0x0010) in dicom_data:  # Check for the top-level sequence
+                    for item in dicom_data[(0x300A, 0x0010)]:  # Iterate through the sequence
+                        if (0x300A, 0x0026) in item:
+                            target_prescription_dose = item[(0x300A, 0x0026)].value
+                            break
+
+                # Navigate the sequence to get Number of Brachy Application Setups (300A,00A0)
+                brachy_application_setups = "Unknown"
+                if (0x300A, 0x0070) in dicom_data:  # Check for the top-level sequence
+                    for item in dicom_data[(0x300A, 0x0070)]:  # Iterate through the sequence
+                        if (0x300A, 0x00A0) in item:
+                            brachy_application_setups = item[(0x300A, 0x00A0)].value
+                            break
+
 
                 # Append the data
-                data.append([subfolder_name, patient_name, patient_id, target_prescription_dose, brachy_application_setups])
+                data.append([
+                    subfolder_name,
+                    patient_name,
+                    patient_id,
+                    target_prescription_dose,
+                    brachy_application_setups
+                ])
 
             except Exception as e:
                 print(f"Error reading {dicom_file_path}: {e}")
@@ -43,5 +64,6 @@ def extract_dicom_info(directory):
     print(f"Output written to {output_csv}")
 
 # Replace with the target directory path
-directory = r"H:\\CCSI\\PlanningModule\\Brachy Projects\\1. CIHR MDBC Collaboration\\Prostate Patients\\Prostate Patients (Dakota 2022-2020)"
+#directory = r"H:\\CCSI\\PlanningModule\\Brachy Projects\\1. CIHR MDBC Collaboration\\Prostate Patients\\Prostate Patients (Dakota 2022-2020)"
+directory = r"H:\\CCSI\\PlanningModule\\Brachy Projects\\1. CIHR MDBC Collaboration\\Prostate Patients\\Prostate Patients (Matt 2022-2020)"
 extract_dicom_info(directory)
